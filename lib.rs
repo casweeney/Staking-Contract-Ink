@@ -5,12 +5,14 @@ mod staking {
     use ink::storage::Mapping;
 
 
+    // Setting storage for state variables
     #[ink(storage)]
     pub struct Staking {
         deadline: u64,
         balances: ink::storage::Mapping<AccountId, Balance>,
     }
 
+    // Events
     #[ink(event)]
     pub struct Staked {
         #[ink(topic)] // -> indexed
@@ -24,7 +26,9 @@ mod staking {
         deadline: u64
     }
 
+    // Implementation of contract functions
     impl Staking {
+        // Constructor function: an ink contract must have at least one constructor function
         #[ink(constructor, payable)]
         pub fn new() -> Self {
             // Get the current timestamp from the environment
@@ -37,6 +41,7 @@ mod staking {
             Self { deadline: deadline, balances: balances }
         }
 
+        // Stake function: Called to stake a value
         #[ink(message, payable)]
         pub fn stake(&mut self) {
             let caller = self.env().caller();
@@ -55,7 +60,7 @@ mod staking {
             });
         }
 
-        
+        // Withdraw function: called to withdraw staked value
         #[ink(message)]
         pub fn withdraw(&mut self) {
             assert!(self.deadline < Self::env().block_timestamp(), "Deadline not reached");
@@ -71,6 +76,7 @@ mod staking {
             self.env().transfer(caller, balance).unwrap();
         }
 
+        // Function to change the deadline
         #[ink(message)]
         pub fn change_deadline(&mut self, dead_line: u64) {
             self.deadline = dead_line;
@@ -80,11 +86,13 @@ mod staking {
             });
         }
 
+        // Function to show the current deadline
         #[ink(message)]
         pub fn show_deadline(&self) -> u64 {
             self.deadline
         }
 
+        // function to return the current staked value of the caller
         #[ink(message)]
         pub fn show_user_balance(&self, user: AccountId) -> Balance {
             let balance = self.balances.get(user).unwrap();
