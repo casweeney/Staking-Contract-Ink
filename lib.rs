@@ -27,7 +27,9 @@ mod staking {
         #[ink(message, payable)]
         pub fn stake(&mut self) {
             let caller = self.env().caller();
+
             let balance = self.balances.get(caller).unwrap_or(0);
+
             let value = self.env().transferred_value();
 
             assert!(value > 0, "Insuficient funds");
@@ -41,6 +43,7 @@ mod staking {
             assert!(self.deadline < Self::env().block_timestamp(), "Deadline not reached");
 
             let caller = self.env().caller();
+            
             let balance = self.balances.get(caller).unwrap();
 
             assert!(balance > 0, "No stake");
