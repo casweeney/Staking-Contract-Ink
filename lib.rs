@@ -18,6 +18,12 @@ mod staking {
         value: Balance,
     }
 
+    #[ink(event)]
+    pub struct DeadlineUpdated {
+        #[ink(topic)] // -> indexed
+        deadline: u64
+    }
+
     impl Staking {
         #[ink(constructor, payable)]
         pub fn new() -> Self {
@@ -45,7 +51,7 @@ mod staking {
 
             self.env().emit_event(Staked {
                 caller: caller,
-                value: value,
+                value: value
             });
         }
 
@@ -68,6 +74,10 @@ mod staking {
         #[ink(message)]
         pub fn change_deadline(&mut self, dead_line: u64) {
             self.deadline = dead_line;
+
+            self.env().emit_event(DeadlineUpdated {
+                deadline: dead_line
+            });
         }
 
         #[ink(message)]
