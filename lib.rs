@@ -11,6 +11,13 @@ mod staking {
         balances: ink::storage::Mapping<AccountId, Balance>,
     }
 
+    #[ink(event)]
+    pub struct Staked {
+        #[ink(topic)] // -> indexed
+        caller: AccountId,
+        value: Balance,
+    }
+
     impl Staking {
         #[ink(constructor, payable)]
         pub fn new() -> Self {
@@ -35,6 +42,11 @@ mod staking {
             assert!(value > 0, "Insuficient funds");
 
             self.balances.insert(caller, &(balance + value));
+
+            self.env().emit_event(Staked {
+                caller: caller,
+                value: value,
+            });
         }
 
         
@@ -43,7 +55,7 @@ mod staking {
             assert!(self.deadline < Self::env().block_timestamp(), "Deadline not reached");
 
             let caller = self.env().caller();
-            
+
             let balance = self.balances.get(caller).unwrap();
 
             assert!(balance > 0, "No stake");
