@@ -33,6 +33,12 @@ mod staking {
         deadline: u64
     }
 
+    impl Staking {
+        fn stake_now(&mut self, caller: AccountId, value: Balance) {
+            self.balances.insert(caller, &value);
+        }
+    }
+
     // Implementation of contract functions
     impl Staking {
         // Constructor function: an ink contract must have at least one constructor function
@@ -59,7 +65,7 @@ mod staking {
 
             assert!(value > 0, "Insuficient funds");
 
-            self.balances.insert(caller, &(balance + value));
+            self.stake_now(caller, balance + value);
 
             self.env().emit_event(Staked {
                 caller: caller,
