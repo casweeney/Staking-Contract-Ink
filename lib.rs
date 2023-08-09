@@ -21,6 +21,13 @@ mod staking {
     }
 
     #[ink(event)]
+    pub struct Withdrawn {
+        #[ink(topic)] // -> indexed
+        caller: AccountId,
+        value: Balance,
+    }
+
+    #[ink(event)]
     pub struct DeadlineUpdated {
         #[ink(topic)] // -> indexed
         deadline: u64
@@ -67,13 +74,18 @@ mod staking {
 
             let caller = self.env().caller();
 
-            let balance = self.balances.get(caller).unwrap();
+            let balance = self.balances.get(caller).unwrap_or(0);
 
             assert!(balance > 0, "No stake");
 
             self.balances.remove(caller);
 
             self.env().transfer(caller, balance).unwrap();
+
+            self.env().emit_event(Withdrawn {
+                caller: caller,
+                value: balance
+            });
         }
 
         // Function to change the deadline
@@ -95,7 +107,7 @@ mod staking {
         // function to return the current staked value of the caller
         #[ink(message)]
         pub fn show_user_balance(&self, user: AccountId) -> Balance {
-            let balance = self.balances.get(user).unwrap();
+            let balance = self.balances.get(user).unwrap_or(0);
             balance
         }
     }
