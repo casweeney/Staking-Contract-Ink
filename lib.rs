@@ -97,7 +97,9 @@ mod staking {
         // Function to change the deadline
         #[ink(message)]
         pub fn change_deadline(&mut self, dead_line: u64) {
-            self.deadline = dead_line;
+            let current_timestamp: u64 = Self::env().block_timestamp();
+            
+            self.deadline = current_timestamp + dead_line;
 
             self.env().emit_event(DeadlineUpdated {
                 deadline: dead_line
