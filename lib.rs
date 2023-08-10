@@ -9,7 +9,7 @@ mod staking {
     #[ink(storage)]
     pub struct Staking {
         deadline: u64,
-        balances: ink::storage::Mapping<AccountId, Balance>,
+        balances: Mapping<AccountId, Balance>,
     }
 
     // Events
@@ -33,6 +33,7 @@ mod staking {
         deadline: u64
     }
 
+    #[ink(impl)]
     impl Staking {
         fn stake_now(&mut self, caller: AccountId, value: Balance) {
             self.balances.insert(caller, &value);
@@ -40,6 +41,7 @@ mod staking {
     }
 
     // Implementation of contract functions
+    #[ink(impl)]
     impl Staking {
         // Constructor function: an ink contract must have at least one constructor function
         #[ink(constructor, payable)]
@@ -98,7 +100,7 @@ mod staking {
         #[ink(message)]
         pub fn change_deadline(&mut self, dead_line: u64) {
             let current_timestamp: u64 = Self::env().block_timestamp();
-            
+
             self.deadline = current_timestamp + dead_line;
 
             self.env().emit_event(DeadlineUpdated {
